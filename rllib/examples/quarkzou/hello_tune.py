@@ -31,7 +31,7 @@ ray.init()
 
 # analysis = tune.run(
 #     "PPO",
-#     stop={"training_iteration": 2},
+#     stop={"episode_reward_mean": 200},
 #     config={
 #         "env": "CartPole-v0",
 #         "framework": "tf2",
@@ -52,7 +52,8 @@ ray.init()
 # # or simply get the last checkpoint (with highest "training_iteration")
 # last_checkpoint1 = analysis.get_last_checkpoint()
 # print(last_checkpoint1)
-last_checkpoint1 = "/Users/quark/ray_results/PPO/PPO_CartPole-v0_2f235_00000_0_2022-03-19_10-20-45/checkpoint_000002/checkpoint-2"
+last_checkpoint1 = "/Users/quark/ray_results/PPO/PPO_CartPole-v0_6b19c_00000_0_2022-03-19_11-05-23/checkpoint_000014/checkpoint-14"
+# last_checkpoint1 = "/Users/quark/ray_results/PPO/PPO_CartPole-v0_2f235_00000_0_2022-03-19_10-20-45/checkpoint_000002/checkpoint-2"
 
 config = ppo.DEFAULT_CONFIG.copy()
 config["num_gpus"] = 0
@@ -66,10 +67,10 @@ agent.restore(last_checkpoint1)
 env = gym.make('CartPole-v0')
 obs = env.reset()
 done = False
-while not done:
+while True:
     env.render()
     action = agent.compute_action(obs)
     obs, reward, done, info = env.step(action)
-
+    print(done)
 
 env.close()
