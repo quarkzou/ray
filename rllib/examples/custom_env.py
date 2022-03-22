@@ -168,7 +168,7 @@ if __name__ == "__main__":
             "custom_model": "my_model",
             "vf_share_layers": True,
         },
-        "num_workers": 1,  # parallelism
+        "num_workers": 0,  # parallelism
         "framework": args.framework,
     }
 

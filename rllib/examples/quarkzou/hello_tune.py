@@ -29,19 +29,19 @@ ray.init()
 #     },
 # )
 
-# analysis = tune.run(
-#     "PPO",
-#     stop={"episode_reward_mean": 200},
-#     config={
-#         "env": "CartPole-v0",
-#         "framework": "tf2",
-#         "eager_tracing": True,
-#         "num_gpus": 0,
-#         "num_workers": 4,
-#     },
-#     # checkpoint_freq=2,
-#     checkpoint_at_end=True,
-# )
+analysis = tune.run(
+    "PPO",
+    stop={"episode_reward_mean": 200},
+    config={
+        "env": "CartPole-v0",
+        "framework": "tf2",
+        "eager_tracing": True,
+        "num_gpus": 0,
+        "num_workers": 4,
+    },
+    # checkpoint_freq=2,
+    checkpoint_at_end=True,
+)
 
 # list of lists: one list per checkpoint; each checkpoint list contains
 # 1st the path, 2nd the metric value
@@ -50,9 +50,9 @@ ray.init()
 #     metric="episode_reward_mean")
 #
 # # or simply get the last checkpoint (with highest "training_iteration")
-# last_checkpoint1 = analysis.get_last_checkpoint()
-# print(last_checkpoint1)
-last_checkpoint1 = "/Users/quark/ray_results/PPO/PPO_CartPole-v0_6b19c_00000_0_2022-03-19_11-05-23/checkpoint_000014/checkpoint-14"
+last_checkpoint1 = analysis.get_last_checkpoint()
+print(last_checkpoint1)
+# last_checkpoint1 = "/Users/quark/ray_results/PPO/PPO_CartPole-v0_6b19c_00000_0_2022-03-19_11-05-23/checkpoint_000014/checkpoint-14"
 # last_checkpoint1 = "/Users/quark/ray_results/PPO/PPO_CartPole-v0_2f235_00000_0_2022-03-19_10-20-45/checkpoint_000002/checkpoint-2"
 
 config = ppo.DEFAULT_CONFIG.copy()
