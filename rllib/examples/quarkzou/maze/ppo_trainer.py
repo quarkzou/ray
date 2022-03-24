@@ -2,20 +2,21 @@ from ray.rllib.env.env_context import EnvContext
 from ray import tune
 import ray.rllib.agents.ppo as ppo
 from maze_env import QuarkMaze3
+import tensorflow as tf
 
 
 def train():
     analysis = tune.run(
         "PPO",
-        stop={"training_iteration": 20},
-        # stop={"episode_reward_mean": 29},
+        # stop={"training_iteration": 20},
+        stop={"episode_reward_mean": 29},
         config={
             "env": QuarkMaze3,
-            "framework": "torch",
+            "framework": "tf2",
             "eager_tracing": True,
             "num_gpus": 0,
-            "num_workers": 2,
-            "gamma": 0.99,
+            "num_workers": 4,
+            "gamma": 0.90,
         },
         # checkpoint_freq=2,
         checkpoint_at_end=True,
@@ -31,7 +32,7 @@ def predict(last_checkpoint1):
         last_checkpoint1 = "/Users/quarkzou/ray_results/DQN/DQN_QuarkMaze2_ce9a7_00000_0_2022-03-23_11-10-35/checkpoint_000020/checkpoint-20"
 
     config = ppo.DEFAULT_CONFIG.copy()
-    config["num_gpus"] = 0
+    config["num_gpus"] = 1
     config["num_workers"] = 1
     config["framework"] = "tf2"
     config["eager_tracing"] = True
@@ -60,5 +61,4 @@ def main():
 
 
 if __name__ == '__main__':
-    # print(ppo.DEFAULT_CONFIG)
     main()

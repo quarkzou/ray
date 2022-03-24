@@ -7,14 +7,14 @@ from maze_env import QuarkMaze3
 def train():
     analysis = tune.run(
         "DQN",
-        stop={"training_iteration": 20},
-        # stop={"episode_reward_mean": 29},
+        # stop={"training_iteration": 20},
+        stop={"episode_reward_mean": 29},
         config={
             "env": QuarkMaze3,
             "framework": "tf2",
             "eager_tracing": True,
             "num_gpus": 0,
-            "num_workers": 1,
+            "num_workers": 4,
         },
         # checkpoint_freq=2,
         checkpoint_at_end=True,

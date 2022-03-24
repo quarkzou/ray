@@ -9,6 +9,7 @@ MAZE_SHAPE = (4, 4)
 TRAP1_POS = np.array([1, 1])
 TRAP2_POS = np.array([2, 2])
 EXIT_POS = np.array([2, 1])
+# TREASURE_POS = np.array([2, 3])
 TREASURE_POS = np.array([2, 3])
 
 TREASURE_VALUE = 20.0
