@@ -8,17 +8,23 @@ import tensorflow as tf
 import numpy as np
 
 
+# 自定义停止迭代逻辑，平均reward > 29 或者训练次数 > 20
+def stopper(trial_id, result):
+    return result["episode_reward_mean"] > 29 or result["training_iteration"] >= 20
+
+
 def train():
     analysis = tune.run(
         "PPO",
         # stop={"training_iteration": 20},
-        stop={"episode_reward_mean": 29},
+        stop=stopper,
         config={
             "env": maze_env_4.QuarkMaze4,
             "framework": "tf2",
             "eager_tracing": True,
             "num_gpus": 0,
-            "num_workers": 4,
+            "num_workers": 2,
+            # "lr": tune.grid_search([0.01, 0.001, 0.0001]),
             "lr": 0.001,
         },
         # checkpoint_freq=2,
@@ -48,7 +54,8 @@ def predict(last_checkpoint1):
         # env.render()
         action = agent.compute_action(obs)
         obs, reward, done, info = env.step(action)
-        print(obs.reshape((maze_env_4.MAZE_SIZE, maze_env_4.MAZE_SIZE)), action, done)
+        print(obs[:maze_env_4.MAZE_SIZE * maze_env_4.MAZE_SIZE].reshape((maze_env_4.MAZE_SIZE, maze_env_4.MAZE_SIZE)),
+              action, done)
 
     env.close()
 
@@ -79,15 +86,16 @@ def model_policy(last_checkpoint1):
     print(dist.sample())
     print(policy.model.value_function())
 
-    # policy.model.base_model.summary()
+    policy.model.base_model.summary()
 
 
 def main():
     # test_env()
     last_checkpoint1 = train()
-    predict(last_checkpoint1)
-    # last_checkpoint1 = "/Users/quarkzou/ray_results/PPO/PPO_QuarkMaze4_e961d_00000_0_2022-03-25_13-03-29/checkpoint_000012/checkpoint-12"
-    # model_policy(last_checkpoint1)
+    # predict(last_checkpoint1)
+    # last_checkpoint1 = "/root/ray_results/PPO/PPO_QuarkMaze4_af204_00002_2_lr=0.0001_2022-03-25_16-50-56/checkpoint_000020/checkpoint-20"
+    # predict(last_checkpoint1)
+    model_policy(last_checkpoint1)
 
 
 if __name__ == '__main__':

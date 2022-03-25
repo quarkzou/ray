@@ -18,7 +18,7 @@ EXIT_VALUE = 10.0
 POS_VALUE = 1.0
 
 
-# 将obs从box改成flat
+# 将obs从box改成flat，然后增加step惩罚机制、走的步数越多，收益越低
 class QuarkMaze4(gym.Env):
     def render(self, mode='human'):
         pass
@@ -26,11 +26,12 @@ class QuarkMaze4(gym.Env):
     def __init__(self, config: EnvContext):
         # 0:up, 1:down, 2:left, 3:right
         self.action_space = Discrete(4)
-        self.observation_space = Box(TRAP_VALUE, TREASURE_VALUE, shape=MAZE_SHAPE, dtype=np.float32)
+        self.observation_space = Box(TRAP_VALUE, 25, shape=(MAZE_SIZE * MAZE_SIZE + 1,), dtype=np.float32)
         self.cur_pos = np.array([0, 0])
         self.seed((config.worker_index + 1) * (config.num_workers + 1))
         self.treasure_status = True
         self.epoch_reward = 0
+        self.steps = 0
 
     def create_obs(self):
         obs = np.zeros((MAZE_SIZE, MAZE_SIZE))
@@ -40,11 +41,16 @@ class QuarkMaze4(gym.Env):
         if self.treasure_status:
             obs[TREASURE_POS[0]][TREASURE_POS[1]] = TREASURE_VALUE
         obs[self.cur_pos[0]][self.cur_pos[1]] = POS_VALUE
-        return obs.reshape(MAZE_SHAPE)
+
+        obs = obs.reshape(MAZE_SHAPE)
+        obs = np.append(obs, self.steps)
+        return obs
 
     def reset(self):
         self.cur_pos = np.array([0, 0])
         self.treasure_status = True
+        self.epoch_reward = 0
+        self.steps = 0
         return self.create_obs()
 
     def step(self, action):
@@ -77,13 +83,17 @@ class QuarkMaze4(gym.Env):
             reward = TREASURE_VALUE
         elif (self.cur_pos == TRAP1_POS).all() or (self.cur_pos == TRAP2_POS).all():
             done = True
-            reward = TRAP_VALUE
+            reward = TRAP_VALUE - self.steps * 0.2
         elif (self.cur_pos == EXIT_POS).all():
             done = True
-            reward = EXIT_VALUE
+            reward = EXIT_VALUE - self.steps * 0.2
 
         self.epoch_reward += reward
-        return self.create_obs(), reward, done, {}
+        if self.steps < 25:
+            self.steps += 1
+
+        obs = self.create_obs()
+        return obs, reward, done, {}
 
     def seed(self, seed=None):
         random.seed(seed)
@@ -93,11 +103,11 @@ def test_env():
     env_config = EnvContext({}, 0, num_workers=1)
     env = QuarkMaze4(env_config)
     obs = env.reset()
-    print(obs.reshape((MAZE_SIZE, MAZE_SIZE)))
+    print(obs)
     obs, reward, done, info = env.step(1)
-    print(obs.reshape((MAZE_SIZE, MAZE_SIZE)))
+    print(obs)
     obs, reward, done, info = env.step(1)
-    print(obs.reshape((MAZE_SIZE, MAZE_SIZE)))
+    print(obs)
 
 
 if __name__ == '__main__':
