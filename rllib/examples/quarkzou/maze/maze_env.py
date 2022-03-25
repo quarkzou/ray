@@ -143,6 +143,7 @@ class QuarkMaze2(gym.Env):
     def seed(self, seed=None):
         random.seed(seed)
 
+
 # 加入宝藏、PPO明显比DQN好，DQN在局部无限抖动
 class QuarkMaze3(gym.Env):
     def __init__(self, config: EnvContext):
